@@ -28,6 +28,7 @@ DB_CONFIG = {
 }
 
 # Función para crear conexión a MySQL
+# Función para crear conexión a MySQL
 def get_mysql_connection():
     try:
         connection = mysql.connector.connect(**DB_CONFIG)
@@ -40,12 +41,17 @@ def get_mysql_connection():
 # Función para crear la base de datos y tablas - CORREGIDA PARA CLEVER CLOUD
 def init_mysql_db():
     try:
-        # Conectar directamente con la base de datos existente (no intentar crearla)
+        # Conectar directamente con la base de datos existente
         connection = get_mysql_connection()
         if not connection:
             return False
 
         cursor = connection.cursor()
+
+        # Verificar que estamos conectados a la base de datos correcta
+        cursor.execute("SELECT DATABASE() as current_db")
+        current_db = cursor.fetchone()[0]
+        st.info(f"Conectado a la base de datos: {current_db}")
 
         # Tabla de usuarios
         cursor.execute('''
@@ -147,6 +153,7 @@ def init_mysql_db():
         ''')
 
         connection.commit()
+        st.success("Tablas creadas exitosamente")
 
         # Insertar datos de ejemplo
         insert_sample_data(cursor, connection)
@@ -156,7 +163,9 @@ def init_mysql_db():
         return True
 
     except Error as e:
-        st.error(f"Error inicializando base de datos MySQL: {e}")
+        st.error(f"Error inicializando tablas MySQL: {e}")
+        st.error(f"Código de error: {e.errno}")
+        st.error(f"Mensaje SQL: {e.msg}")
         return False
 
 # Función para insertar datos de ejemplo
