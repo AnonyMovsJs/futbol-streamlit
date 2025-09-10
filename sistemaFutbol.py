@@ -37,20 +37,10 @@ def get_mysql_connection():
         return None
 
 # Función para crear la base de datos y tablas
+# Función para crear la base de datos y tablas - CORREGIDA PARA CLEVER CLOUD
 def init_mysql_db():
     try:
-        # Primero conectar sin especificar la base de datos
-        config_without_db = DB_CONFIG.copy()
-        del config_without_db['database']
-        connection = mysql.connector.connect(**config_without_db)
-        cursor = connection.cursor()
-
-        # Crear base de datos si no existe
-        cursor.execute("CREATE DATABASE IF NOT EXISTS bc1m00fbinftrdo7xahp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        cursor.close()
-        connection.close()
-
-        # Ahora conectar con la base de datos
+        # Conectar directamente con la base de datos existente (no intentar crearla)
         connection = get_mysql_connection()
         if not connection:
             return False
