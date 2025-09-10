@@ -37,137 +37,6 @@ def get_mysql_connection():
         return None
 
 # Función para crear la base de datos y tablas
-def init_mysql_db():
-    try:
-        # Primero conectar sin especificar la base de datos
-        config_without_db = DB_CONFIG.copy()
-        del config_without_db['database']
-        connection = mysql.connector.connect(**config_without_db)
-        cursor = connection.cursor()
-
-        # Crear base de datos si no existe
-        cursor.execute("CREATE DATABASE IF NOT EXISTS bc1m00fbinftrdo7xahp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        cursor.close()
-        connection.close()
-
-        # Ahora conectar con la base de datos
-        connection = get_mysql_connection()
-        if not connection:
-            return False
-
-        cursor = connection.cursor()
-
-        # Tabla de usuarios
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            role VARCHAR(50) NOT NULL,
-            nombre VARCHAR(100) NOT NULL,
-            email VARCHAR(100),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ''')
-
-        # Tabla de clientes
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS clientes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            dni VARCHAR(20) UNIQUE,
-            nombre VARCHAR(100) NOT NULL,
-            apellido VARCHAR(100),
-            telefono VARCHAR(20),
-            email VARCHAR(100),
-            direccion TEXT,
-            fecha_nacimiento DATE,
-            equipo_favorito VARCHAR(100),
-            activo BOOLEAN DEFAULT TRUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_dni (dni),
-            INDEX idx_nombre (nombre)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ''')
-
-        # Tabla de canchas
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS canchas (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            numero VARCHAR(10) UNIQUE NOT NULL,
-            nombre VARCHAR(100) NOT NULL,
-            tipo ENUM('futbol5', 'futbol7', 'futbol11') NOT NULL,
-            cesped ENUM('natural', 'sintetico') NOT NULL,
-            techado BOOLEAN DEFAULT FALSE,
-            iluminacion BOOLEAN DEFAULT TRUE,
-            capacidad_jugadores INT NOT NULL,
-            precio_hora_dia DECIMAL(10,2) NOT NULL,
-            precio_hora_noche DECIMAL(10,2) NOT NULL,
-            estado ENUM('disponible', 'mantenimiento', 'fuera_servicio') DEFAULT 'disponible',
-            descripcion TEXT,
-            imagen_url VARCHAR(255),
-            activo BOOLEAN DEFAULT TRUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_tipo (tipo),
-            INDEX idx_estado (estado)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ''')
-
-        # Tabla de reservas
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS reservas (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            cancha_id INT NOT NULL,
-            cliente_id INT,
-            cliente_nombre VARCHAR(200),
-            fecha DATE NOT NULL,
-            hora_inicio TIME NOT NULL,
-            hora_fin TIME NOT NULL,
-            precio_total DECIMAL(10,2) NOT NULL,
-            estado ENUM('pendiente', 'confirmada', 'en_curso', 'finalizada', 'cancelada') DEFAULT 'pendiente',
-            metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia') NOT NULL,
-            observaciones TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (cancha_id) REFERENCES canchas(id) ON DELETE CASCADE,
-            FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
-            INDEX idx_fecha (fecha),
-            INDEX idx_cancha (cancha_id),
-            INDEX idx_estado (estado),
-            UNIQUE KEY unique_reservation (cancha_id, fecha, hora_inicio, hora_fin)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ''')
-
-        # Tabla de mantenimiento
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS mantenimiento (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            cancha_id INT NOT NULL,
-            tipo ENUM('preventivo', 'correctivo', 'limpieza') NOT NULL,
-            descripcion TEXT NOT NULL,
-            fecha_programada DATE NOT NULL,
-            fecha_realizada DATE,
-            responsable VARCHAR(100),
-            costo DECIMAL(10,2),
-            estado ENUM('programado', 'en_proceso', 'completado', 'cancelado') DEFAULT 'programado',
-            observaciones TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (cancha_id) REFERENCES canchas(id) ON DELETE CASCADE,
-            INDEX idx_fecha (fecha_programada),
-            INDEX idx_cancha (cancha_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ''')
-
-        connection.commit()
-
-        # Insertar datos de ejemplo
-        insert_sample_data(cursor, connection)
-
-        cursor.close()
-        connection.close()
-        return True
-
-    except Error as e:
-        st.error(f"Error inicializando base de datos MySQL: {e}")
-        return False
 
 # Función para insertar datos de ejemplo
 def insert_sample_data(cursor, connection):
@@ -544,10 +413,7 @@ def test_mysql_connection():
     except:
         return False
 
-# Inicializar base de datos MySQL
-@st.cache_resource
-def initialize_database():
-    return init_mysql_db()
+
 
 # Inicializar session state
 if 'logged_in' not in st.session_state:
