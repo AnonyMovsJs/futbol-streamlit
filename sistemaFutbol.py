@@ -46,7 +46,7 @@ def init_mysql_db():
         cursor = connection.cursor()
 
         # Crear base de datos si no existe
-        cursor.execute("CREATE DATABASE IF NOT EXISTS futbol_canchas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+        cursor.execute("CREATE DATABASE IF NOT EXISTS bc1m00fbinftrdo7xahp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
         cursor.close()
         connection.close()
 
