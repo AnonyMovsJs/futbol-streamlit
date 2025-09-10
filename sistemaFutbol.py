@@ -19,11 +19,11 @@ st.set_page_config(
 
 # Configuración de la base de datos MySQL
 DB_CONFIG = {
-    'host': 'localhost',
+    'host': 'bc1m00fbinftrdo7xahp-mysql.services.clever-cloud.com',
     'port': 3306,
-    'user': 'root',
-    'password': 'root',  # Por defecto XAMPP no tiene contraseña
-    'database': 'futbol_canchas_db',
+    'user': 'uvv8ddfyy6im08il',
+    'password': 'klx2DlrrUhqYk544pfWS',  # Por defecto XAMPP no tiene contraseña
+    'database': 'bc1m00fbinftrdo7xahp',
     'charset': 'utf8mb4'
 }
 
