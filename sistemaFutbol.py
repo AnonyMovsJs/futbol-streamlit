@@ -48,7 +48,7 @@ def init_mysql_db():
 
         cursor = connection.cursor()
 
-        
+
 
 
 
